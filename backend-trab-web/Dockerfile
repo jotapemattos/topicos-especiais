@@ -22,8 +22,8 @@ COPY . .
 # Build the application
 RUN pnpm build
 
-# Production stage
-FROM node:20-slim AS production
+# Development stage
+FROM node:20-slim AS development
 
 # Install OpenSSL and other required packages
 RUN apt-get update -y && \
@@ -37,12 +37,12 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies
-RUN pnpm install --prod --frozen-lockfile
+# Install ALL dependencies (not just production)
+RUN pnpm install --frozen-lockfile
 
-# Copy built files
+# Copy built files and source for debugging
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/prisma ./src/prisma
+COPY --from=builder /app/src ./src
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -53,9 +53,9 @@ RUN echo '#!/bin/sh\n\
 echo "Pushing database schema..."\n\
 npx prisma db push\n\
 \n\
-# Start application\n\
-echo "Starting application..."\n\
-exec node dist/server.js' > /app/start.sh && chmod +x /app/start.sh
+# Start application in development mode\n\
+echo "Starting application in development mode..."\n\
+exec pnpm dev' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose the port your app runs on
 EXPOSE 3333
