@@ -1,0 +1,114 @@
+.historico {
+    padding: 20px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}  
+
+.header button:focus {
+    outline: 2px solid #5e9771c6;
+    outline-offset: 2px;
+}  
+  
+.patient-list {
+    margin-top: 20px;
+}
+  
+.patient-list h2 {
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-left: 30px;
+}
+  
+.history-box {
+    padding: 65px;
+    display: flex;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+    background-color: #ffffff;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+  
+.history-box div {
+    color: #555;
+    font-size: 14px;
+}
+  
+.history-box strong {
+    color: #333;
+    font-weight: bold;
+}
+
+.field-group-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-box .doctor-info {
+    gap: 30px; 
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+}
+
+.doctor-icon {
+    padding: 7px;
+    font-size: 40px; 
+    color: #f5f5f5; 
+    border-radius: 50%;
+    background-color: #5e9771c6;
+}
+
+@media (max-width: 768px) {
+    .history-box {
+        display: flex;
+        padding: 35px; 
+        align-items: center;
+        flex-direction: row; 
+        justify-content: space-between; 
+    }
+    
+    .doctor-info {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .doctor-icon {
+        font-size: 30px; 
+        padding: 8px;
+    }
+    
+    .history-details {
+        font-size: 14px; 
+        text-align: right; 
+    }
+    
+    .history-details div {
+        margin-bottom: 5px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .history-box {
+      padding: 10px;
+    }
+  
+    .history-box div {
+      font-size: 10px;
+    }
+  
+    .doctor-icon {
+      font-size: 25px;
+      padding: 5px;
+    }
+  
+    .patient-list h2 {
+      font-size: 14px;
+    }
+  }
+  

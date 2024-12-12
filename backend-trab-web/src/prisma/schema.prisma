@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  phone         String
+  password      String
+  licenseId     String         @unique
+  patients      Patient[]      @relation("DoctorPatient")
+  consultations Consultation[]
+}
+
+model Patient {
+  id                  String                @id @default(uuid())
+  cpf                 String                @unique
+  name                String
+  motherName          String
+  birthDate           DateTime
+  doctor              Doctor                @relation("DoctorPatient", fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId            String
+  consultations       Consultation[]
+  consultationHistory ConsultationHistory[]
+}
+
+model Consultation {
+  id                  String                @id @default(uuid())
+  consultDate         DateTime
+  time                String
+  bloodPressure       String
+  frequency           String
+  saturation          Float
+  glycemia            Float
+  anamnesis           String
+  duration            Int
+  icdCode             String // International Classification of Diseases
+  medication          String
+  doctor              Doctor                @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId            String
+  patient             Patient               @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId           String
+  postConsultation    PostConsultation?
+  consultationHistory ConsultationHistory[]
+}
+
+model PostConsultation {
+  id                 String       @id @default(uuid())
+  hoursDeclaration   Boolean
+  prescription       Boolean
+  medicalCertificate Boolean
+  referral           Boolean
+  medicalReport      Boolean
+  consultation       Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  consultationId     String       @unique
+}
+
+model ConsultationHistory {
+  id             String       @id @default(uuid())
+  doctorName     String
+  medicalRecord  String
+  consultation   Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  consultationId String
+  patient        Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId      String
+}
