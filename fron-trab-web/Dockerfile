@@ -1,22 +1,22 @@
-# Fetching the latest node image on alpine linux
-FROM node:alpine AS development
+# Development stage
+FROM node:20-slim
 
-# Declaring env
-ENV NODE_ENV=development
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Setting up the work directory
-WORKDIR /react-app
+WORKDIR /app
 
-# Installing dependencies
-COPY ./package*.json /react-app
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
 
-RUN npm install
+# Clean install dependencies
+RUN pnpm install --frozen-lockfile
 
-# Copying all the files in our project
+# Copy source files
 COPY . .
 
-# Exposing port 3000 for the application
+# Expose port 3000
 EXPOSE 3000
 
-# Starting our application
-CMD ["npm","start"]
+# Start the development server with host flag
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]

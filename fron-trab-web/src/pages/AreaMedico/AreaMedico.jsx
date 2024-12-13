@@ -38,13 +38,20 @@ const AreaMedico = () => {
       .replace(/(\d{3})(\d{2})$/, "$1-$2");
   };
 
-  const formatBirthdate = (value) => {
-    return value
-      .replace(/\D/g, "") 
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{2})(\d)/, "$1/$2") 
-      .slice(0, 10);
-  };
+const formatBirthdate = (value) => {
+  const formatted = value
+    .replace(/\D/g, "") // Remove all non-digit characters
+    .replace(/(\d{2})(\d)/, "$1/$2")
+    .replace(/(\d{2})(\d)/, "$1/$2");
+
+  if (formatted.length === 10) { // Ensure the date is in MM/DD/YYYY format
+    const [month, day, year] = formatted.split('/');
+    return `${year}-${month}-${day}`; // Return the date in YYYY-MM-DD format
+  }
+  
+  return formatted;
+};
+
 
   const handleCPFChange = (e) => {
     setCPF(formatCPF(e.target.value));
@@ -63,10 +70,10 @@ const AreaMedico = () => {
       const response = await api.post(`/${user.id}/patients`, {
         name,
         cpf: CPF.replace(/\D/g, ''), 
-        birthdate,
+        birthDate: birthdate,
         motherName
       });
-
+      console.log(response);
       // Clear form
       setName("");
       setCPF("");
@@ -93,10 +100,11 @@ const AreaMedico = () => {
 
     try {
       const response = await api.get(`/${user.id}/patients`);
+      console.log(response);
       
       // Filter patients by name
-      const filteredPatients = response.data.filter(patient => 
-        patient.name.toLowerCase().includes(searchName.toLowerCase())
+      const filteredPatients = response.data.patients.filter(patient => 
+        patient.name.toLowerCase().includes(name.toLowerCase())
       );
       
       setPatients(filteredPatients);

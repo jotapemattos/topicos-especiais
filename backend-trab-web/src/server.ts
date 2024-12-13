@@ -23,13 +23,14 @@ fastify.register(autoload, {
 })
 
 fastify.register(cors, {
-  origin: true,
+  origin: ['http://localhost:3000', 'http://localhost'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   credentials: true,
-  maxAge: 86400,
-  preflightContinue: false
+  preflight: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 })
 
 fastify.register(autoload, {
