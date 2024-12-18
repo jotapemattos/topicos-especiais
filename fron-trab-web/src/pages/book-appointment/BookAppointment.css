@@ -42,6 +42,9 @@ input:focus {
 
 .field-group {
     width: 100%;
+    > * + * {
+        margin-top: 1rem;
+    }
 }
 
   

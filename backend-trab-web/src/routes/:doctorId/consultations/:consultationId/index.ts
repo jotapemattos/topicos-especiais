@@ -48,7 +48,7 @@ module.exports = async function (fastify: FastifyInstance) {
     const {
       anamnesis,
       bloodPressure,
-      cid,
+      icdCode,
       consultDate,
       duration,
       frequency,
@@ -58,7 +58,7 @@ module.exports = async function (fastify: FastifyInstance) {
       time,
     } = request.body as {
       bloodPressure: string
-      cid: string
+      icdCode: string
       glycemia: string
       duration: string
       anamnesis: string
@@ -78,7 +78,7 @@ module.exports = async function (fastify: FastifyInstance) {
         duration: Number(duration),
         frequency,
         glycemia: Number(glycemia),
-        icdCode: cid,
+        icdCode,
         medication,
         saturation: Number(saturation),
         time,

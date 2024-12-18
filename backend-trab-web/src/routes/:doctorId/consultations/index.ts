@@ -5,6 +5,8 @@ module.exports = async function (fastify: FastifyInstance) {
   fastify.post('/', async (request, reply) => {
     const params = request.params as { doctorId: string }
     const { doctorId } = params
+    console.log(request.body)
+    console.log(doctorId)
 
     if (!doctorId) {
       reply.status(400).send({ error: 'Parametro doctorId esta faltando' })
@@ -13,7 +15,7 @@ module.exports = async function (fastify: FastifyInstance) {
     const {
       anamnesis,
       bloodPressure,
-      cid,
+      icdCode,
       consultDate,
       duration,
       frequency,
@@ -24,7 +26,7 @@ module.exports = async function (fastify: FastifyInstance) {
       patientId,
     } = request.body as {
       bloodPressure: string
-      cid: string
+      icdCode: string
       glycemia: string
       duration: string
       anamnesis: string
@@ -37,7 +39,7 @@ module.exports = async function (fastify: FastifyInstance) {
     }
 
     const db = prisma
-    await db.consultation.create({
+    const createdConsultation = await db.consultation.create({
       data: {
         anamnesis,
         bloodPressure,
@@ -45,7 +47,7 @@ module.exports = async function (fastify: FastifyInstance) {
         duration: Number(duration),
         frequency,
         glycemia: Number(glycemia),
-        icdCode: cid,
+        icdCode,
         medication,
         saturation: Number(saturation),
         time,
@@ -53,6 +55,8 @@ module.exports = async function (fastify: FastifyInstance) {
         patientId,
       },
     })
+
+    console.log('criado' + createdConsultation)
     return reply.code(201).send({ success: 'Consulta criada com sucesso' })
   })
 }
