@@ -14,7 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route
-            path="/areaMedico"
+            path="/dashboard"
             element={
               <PrivateRoute>
                 <AreaMedico />
@@ -22,7 +22,7 @@ function App() {
             }
           />
           <Route
-            path="/Historico"
+            path="/historical/:id"
             element={
               <PrivateRoute>
                 <Historico />
@@ -30,7 +30,7 @@ function App() {
             }
           />
           <Route
-            path="/NovaConsulta"
+            path="/book-appointment"
             element={
               <PrivateRoute>
                 <NovaConsulta />

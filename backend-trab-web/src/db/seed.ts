@@ -1,20 +1,12 @@
-import prisma from '../prisma/prisma'
 import bcrypt from 'bcrypt'
+import prisma from '../prisma/prisma'
 
 export async function seed() {
+  await prisma.doctor.deleteMany()
   const password = await bcrypt.hash('senha123', 6)
 
-  await prisma.doctor.upsert({
-    where: {
-      email: 'doutorfulano@email.com',
-    },
-    update: {
-      name: 'Fulano da Silva',
-      licenseId: 'CRM-21843249',
-      phone: '(11) 99999-9999',
-      password,
-    },
-    create: {
+  await prisma.doctor.create({
+    data: {
       email: 'doutorfulano@email.com',
       name: 'Fulano da Silva',
       licenseId: 'CRM-21843249',
@@ -23,7 +15,3 @@ export async function seed() {
     },
   })
 }
-
-seed().finally(() => {
-  prisma.$disconnect()
-})

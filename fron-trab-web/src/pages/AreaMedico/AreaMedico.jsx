@@ -17,8 +17,8 @@ const AreaMedico = () => {
   const [error, setError] = useState("");
   const [patients, setPatients] = useState([]);
   const [searchName, setSearchName] = useState("");
-  const handleHistorico = () => {
-    navigate("/Historico"); 
+  const handleHistorico = (patient) => {
+    navigate("/historical/" + patient.id); 
   };
 
   const handleNovaConsulta = () => {
@@ -38,19 +38,19 @@ const AreaMedico = () => {
       .replace(/(\d{3})(\d{2})$/, "$1-$2");
   };
 
-const formatBirthdate = (value) => {
-  const formatted = value
-    .replace(/\D/g, "") // Remove all non-digit characters
-    .replace(/(\d{2})(\d)/, "$1/$2")
-    .replace(/(\d{2})(\d)/, "$1/$2");
+// const formatBirthdate = (value) => {
+//   const formatted = value
+//     .replace(/\D/g, "") // Remove all non-digit characters
+//     .replace(/(\d{2})(\d)/, "$1/$2")
+//     .replace(/(\d{2})(\d)/, "$1/$2");
 
-  if (formatted.length === 10) { // Ensure the date is in MM/DD/YYYY format
-    const [month, day, year] = formatted.split('/');
-    return `${year}-${month}-${day}`; // Return the date in YYYY-MM-DD format
-  }
+//   if (formatted.length === 10) { // Ensure the date is in MM/DD/YYYY format
+//     const [month, day, year] = formatted.split('/');
+//     return `${year}-${month}-${day}`; // Return the date in YYYY-MM-DD format
+//   }
   
-  return formatted;
-};
+//   return formatted;
+// };
 
 
   const handleCPFChange = (e) => {
@@ -58,7 +58,22 @@ const formatBirthdate = (value) => {
   };
 
   const handleBirthdateChange = (e) => {
-    setBirthdate(formatBirthdate(e.target.value));
+    const inputValue = e.target.value;
+    
+    // Format the input to match DD/MM/YYYY
+    const formattedInput = inputValue
+      .replace(/\D/g, '') // Remove non-digit characters
+      .slice(0, 8) // Limit to 8 digits
+      .replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3'); // Add slashes
+  
+    // When input is complete, convert to Date object
+    if (formattedInput.length === 10) {
+      const [day, month, year] = formattedInput.split('/');
+      const formattedDate = new Date(`${year}-${month}-${day}`);
+      setBirthdate(formattedDate);
+    } else {
+      setBirthdate(inputValue);
+    }
   };
 
   const handleRegister = async (e) => {
@@ -70,7 +85,7 @@ const formatBirthdate = (value) => {
       const response = await api.post(`/${user.id}/patients`, {
         name,
         cpf: CPF.replace(/\D/g, ''), 
-        birthDate: birthdate,
+        birthDate: birthdate.toISOString().split('T')[0],
         motherName
       });
       console.log(response);
@@ -177,7 +192,7 @@ const formatBirthdate = (value) => {
                   
                   <div className="patient-actions">
                     <button className="button" onClick={handleNovaConsulta}>NOVA CONSULTA</button>
-                    <button className="button" onClick={handleHistorico}>HISTÓRICO</button>
+                    <button className="button" onClick={() => handleHistorico(patient)}>HISTÓRICO</button>
                   </div>
                 </div>
               ))
@@ -220,9 +235,12 @@ const formatBirthdate = (value) => {
                   type="text" 
                   id="register-birthdate" 
                   className="center-placeholder" 
-                  value={birthdate} 
+                  value={birthdate ? 
+                    birthdate.toLocaleDateString('pt-BR') : 
+                    ''
+                  }  
                   onChange={handleBirthdateChange}
-                  placeholder="__/__/____"
+                  placeholder="DD/MM/AAAA"
                   required
                 />
               </div>

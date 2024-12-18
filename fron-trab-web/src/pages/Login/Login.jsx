@@ -28,7 +28,7 @@ function Login() {
             login(token);
             
             // Navigate to dashboard after successful login
-            navigate("/areaMedico");
+            navigate("/dashboard");
         } catch (error) {
             setError(error.response?.data?.message || 'Erro durante o login. Por favor, tente novamente.');
         }
