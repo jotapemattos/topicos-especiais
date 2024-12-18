@@ -10,8 +10,8 @@ const fastify = Fastify()
 
 async function initializeDatabase() {
   try {
-      console.log('🌱 Seeding database...')
-      await seed()
+    console.log('🌱 Seeding database...')
+    await seed()
   } catch (error) {
     console.error('Error during database initialization:', error)
   }
@@ -23,14 +23,16 @@ fastify.register(autoload, {
 })
 
 fastify.register(cors, {
-  origin: ['http://localhost:3000', 'http://localhost'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  credentials: true,
-  preflight: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  origin: 'http://localhost:5173',
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Access-Control-Allow-Origin', 
+    'Access-Control-Allow-Credentials'
+  ],
+   exposedHeaders: ['*']
 })
 
 fastify.register(autoload, {
@@ -48,6 +50,6 @@ fastify.listen({ host: '0.0.0.0', port: PORT }, async function (err) {
     process.exit(1)
   }
   console.log(`🎉 Server is up and running at port ${PORT}`)
-  
+
   await initializeDatabase()
 })
