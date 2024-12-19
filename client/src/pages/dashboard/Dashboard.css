@@ -10,8 +10,6 @@
   display: flex;
   border-radius: 8px;
   flex-direction: column;
-  background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .field-group-row {
@@ -21,34 +19,26 @@
 }
 
 .field-group {
+  width: 100%;
   flex: 1; 
 }
 
 .field-group input {
-  width: 100%;
+  width: full;
   height: 40px;
   padding: 10px;
   font-size: 14px;
   text-align: left;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid ccc;
 }
 
 #button-search {
-  width: 552px;
+  width: fit-content;
+  padding: 14px 48px;
+  font-weight: 900;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .field-group-row {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  #button-search {
-    width: 100%;
-  }
-}
 
 /* Dynamic Sections */
 .info-section {
@@ -74,14 +64,18 @@
 }
 
 .register-container {
+  width: 100%;
   gap: 20px;
+  justify-content: center;
+  align-items: center;
   display: flex;
-  flex-wrap: wrap;
 }
 
-.register-container .field-group {
-  flex: 1;
-  min-width: 250px;
+.register-inputs {
+  width: full;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .register-button:hover {
@@ -94,6 +88,7 @@
   border-radius: 8px;
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: full;
 }
 
 .register-section h2 {
@@ -110,20 +105,21 @@
   gap: 15px;
   display: flex;
   padding-right: 10px;
-  flex-direction: column;
 }
 
 .field-group-row {
-  gap: 50px;
-  width: 99%;
+  width: full;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
 }
 
 .field-group {
-  flex: 1;
-  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  gap: 4px;
 }
 
 .field-group label {
@@ -133,14 +129,15 @@
 }
 
 .field-group input {
-  width: 98%;
+  width: full;
   height: 30px;
   border: none;
   font-size: 15px;
   text-align: left;
   border-radius: 4px;
   text-transform: uppercase;
-  background-color: #ededed;
+  background-color: #fff;
+  border: 1px solid #d4d4d8;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -149,13 +146,12 @@
 }
 
 .register-button {
-  width: 98%;
+  width: 100%;
   height: 50px;
   border: none;
   color: #fff;
   font-size: 14px;
   cursor: pointer;
-  margin-top: 20px;
   border-radius: 4px;
   text-transform: uppercase;
   background-color: #5e9771c6;
@@ -177,9 +173,21 @@
   }
 
   .field-group input{
-    width: 100%;
+    width: full;
   }
 
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .field-group-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  #button-search {
+    width: 100%;
+  }
 }
 
 /* Patient List */
@@ -187,7 +195,7 @@
   gap: 20px;
   display: flex;  
   margin-top: 200px;
-  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .patient-card {
@@ -195,7 +203,7 @@
   border-radius: 8px;
   align-items: center;
   background-color: white;
-  padding: 0 30px 30px 40px;
+  padding: 20px;
   justify-content: space-between;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

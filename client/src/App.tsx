@@ -30,7 +30,7 @@ function App() {
             }
           />
           <Route
-            path="/book-appointment/:id"
+            path="/patient/:patientId/book-appointment/:consultationId"
             element={
               <PrivateRoute>
                 <BookAppointment />

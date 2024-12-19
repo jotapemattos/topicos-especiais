@@ -1,4 +1,5 @@
 export interface Consultation {
+  id: string
   consultDate: string
   time: string
   bloodPressure: string

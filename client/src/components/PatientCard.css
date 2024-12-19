@@ -1,0 +1,146 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dots-button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  z-index: 1;
+  outline: 1px solid #333;
+}
+
+.dropdown-content.active {
+  display: block;
+  padding: 4px;
+}
+
+.dropdown-content button,
+.dropdown-content a {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 14px;
+}
+
+.dropdown-content button:hover,
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-button {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+.modal-body form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-footer button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirm-button-save {
+  background-color: #16a34a;
+  color: white;
+}
+
+.confirm-button-delete {
+  background-color: #dc2626;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.patient-card {  
+  max-width: max-content;
+  width: full;
+  background-color: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-header {
+    display: flex;
+    width: full;
+    justify-content: space-between;
+}

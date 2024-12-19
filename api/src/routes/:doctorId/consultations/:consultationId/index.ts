@@ -74,7 +74,7 @@ module.exports = async function (fastify: FastifyInstance) {
       data: {
         anamnesis,
         bloodPressure,
-        consultDate,
+        consultDate: new Date(consultDate),
         duration: Number(duration),
         frequency,
         glycemia: Number(glycemia),

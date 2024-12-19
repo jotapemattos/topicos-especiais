@@ -1,7 +1,9 @@
 .historico {
-    padding: 20px;
-    background-color: #f9f9f9;
+    padding: 32px;
     font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }  
 
 .header button:focus {
@@ -20,8 +22,14 @@
    
 }
   
+.consultation-historical {
+  gap: 20px;
+  display: flex;  
+  flex-wrap: wrap;
+}
+  
 .history-box {
-    padding: 65px;
+    padding: 8px;
     display: flex;
     border-radius: 8px;
     margin-bottom: 10px;
@@ -61,6 +69,79 @@
     border-radius: 50%;
     background-color: #5e9771c6;
 }
+
+.history-details-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+}
+
+.history-details-mobile div {
+  color: #555;
+  font-size: 14px;
+}
+
+.history-details-mobile strong {
+  color: #333;
+  font-weight: bold;
+}
+
+.history-details {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+}
+
+.history-details strong {
+  color: #333;
+  font-weight: bold;
+}
+
+.history-details-mobile, .history-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+}
+
+.history-header {
+  display: flex;
+  width: full;
+  justify-content: space-between;
+  color: #000000;
+}
+
+.history-header :nth-child(1){
+    width: full;
+    display: flex;
+    gap: 8px;
+}
+
+.history-header span{
+  display: flex;
+  width: full;
+  font-size: 18px;
+  font-weight: bold;
+  gap: 4px;
+  color: #000000;
+  text-wrap: nowrap;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-transform: capitalize;
+}
+
+.consultation-actions {
+    gap: 25px;
+    display: flex;
+}
+
 
 @media (max-width: 768px) {
     .history-box {
@@ -110,4 +191,3 @@
       font-size: 14px;
     }
   }
-  

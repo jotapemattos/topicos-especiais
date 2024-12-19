@@ -12,7 +12,7 @@ const About: React.FC<AboutProps> = ({ patient }) => {
   const navigate = useNavigate()
 
   const handleBookAppointment = () => {
-    navigate('/book-appointment/' + id)
+    navigate(`/patient/${id}/book-appointment/new`)
   }
 
   return (
