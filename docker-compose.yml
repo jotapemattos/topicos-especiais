@@ -38,19 +38,18 @@ services:
       - clinica-medica-network
   
   frontend:
-    image: notjotape/web-front:v0.2
+    image: notjotape/web-front:v0.4
     ports:
-      - "5173:5173"
-    volumes:
-      - frontend_node_modules:/app/node_modules
+      - "80:80"  
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
+    depends_on:
+      - api
     networks:
       - clinica-medica-network
 
 volumes:
   postgres_data:
-  frontend_node_modules:
   backend_node_modules:
 
 networks:

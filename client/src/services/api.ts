@@ -1,11 +1,7 @@
-import axios, {
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios'
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
-const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:3333',
+const api = axios.create({
+  baseURL: '/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
