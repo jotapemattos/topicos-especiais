@@ -15,23 +15,14 @@ services:
     networks:
       - clinica-medica-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres && psql -U postgres -d clinica-medica -c '\\dt' > /dev/null"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  migration:
-    image: notjotape/web-api:v0.2
-    command: npx prisma migrate deploy
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/clinica-medica?schema=public
-    depends_on:
-      - postgres
-    networks:
-      - clinica-medica-network
-
   api:
     image: notjotape/web-api:v0.2
+    restart: on-failure
     ports:
       - "3333:3333"
     volumes:
@@ -41,7 +32,8 @@ services:
       - NODE_ENV=development
       - JWT_SECRET=clinica-medica
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - clinica-medica-network
   
