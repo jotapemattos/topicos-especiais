@@ -208,13 +208,6 @@ const DoctorDashboard = () => {
                       <Label htmlFor="register-birthdate">
                         Data de Nascimento
                       </Label>
-                      {/* <Input
-                        type="date"
-                        id="register-birthdate"
-                        value={formatDateForInput(birthdate.toString())}
-                        onChange={handleBirthdateChange}
-                        required
-                      /> */}
                       <DatePicker
                         value={new Date(birthdate)}
                         onChange={handleBirthdateChange}
