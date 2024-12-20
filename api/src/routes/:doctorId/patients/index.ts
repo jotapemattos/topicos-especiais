@@ -9,7 +9,6 @@ module.exports = async function (fastify: FastifyInstance) {
     if (!doctorId) {
       reply.status(400).send({ error: 'Parametro doctorId esta faltando' })
     }
-    console.log(request.body)
     const { name, cpf, birthDate, motherName } = request.body as {
       name: string
       cpf: string

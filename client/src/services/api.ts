@@ -1,16 +1,9 @@
 import axios, {
   AxiosInstance,
-  AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios'
 
-// Define an interface for the custom configuration
-interface ApiConfig extends AxiosRequestConfig {
-  credentials?: string
-}
-
-// Create the API instance with TypeScript typing
 const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:3333',
   withCredentials: true,
@@ -20,7 +13,6 @@ const api: AxiosInstance = axios.create({
   },
 })
 
-// Typed request interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('token')
@@ -34,7 +26,6 @@ api.interceptors.request.use(
   },
 )
 
-// Typed response interceptor
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: any) => {
