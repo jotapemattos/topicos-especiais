@@ -1,34 +1,18 @@
-import { FaArrowLeft, FaUser, FaSignOutAlt } from 'react-icons/fa'
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import './Header.css'
 import { useAuth } from '../context/AuthContext'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ArrowLeft, User, LogOut } from 'lucide-react'
 
 const Header = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
   const navigate = useNavigate()
   const { logout } = useAuth()
-
-  useEffect(() => {
-    const handleOutsideClick = (e: any) => {
-      if (dropdownOpen && !e.target.closest('.profile')) {
-        closeDropdown()
-      }
-    }
-
-    document.addEventListener('mousedown', handleOutsideClick)
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [dropdownOpen])
-
-  const toggleDropdown = () => {
-    setDropdownOpen((prev) => !prev)
-  }
-
-  const closeDropdown = () => {
-    setDropdownOpen(false)
-  }
 
   const handleLogout = () => {
     logout()
@@ -39,46 +23,39 @@ const Header = () => {
     navigate(-1)
   }
 
-  useEffect(() => {
-    const handleOutsideClick = (e: any) => {
-      if (!e.target.closest('.profile')) {
-        closeDropdown()
-      }
-    }
-
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleOutsideClick)
-    } else {
-      document.removeEventListener('mousedown', handleOutsideClick)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [dropdownOpen])
-
   return (
-    <header className="header">
-      <div className="header-left">
-        <button className="back-button" onClick={handleBack}>
-          <FaArrowLeft />
-        </button>
-        <h1>ÁREA DO MÉDICO</h1>
-      </div>
+    <header className="w-full border-b bg-background">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+            className="hover:bg-accent"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="font-semibold text-lg">ÁREA DO MÉDICO</h1>
+        </div>
 
-      <div className="header-right">
-        <div className="profile">
-          <div className="profile-icon" onClick={toggleDropdown}>
-            <FaUser />
-          </div>
-
-          {dropdownOpen && (
-            <div className={`profile-dropdown ${dropdownOpen ? 'open' : ''}`}>
-              <button className="dropdown-item" onClick={handleLogout}>
-                <FaSignOutAlt /> Sair
-              </button>
-            </div>
-          )}
+        <div className="flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-accent rounded-full"
+              >
+                <User className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                <span>Sair</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

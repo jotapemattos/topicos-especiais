@@ -1,39 +1,46 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Patient } from '../services/types'
-import './PatientCard.css'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
-import { formatDateForInput } from '../utils/formatDate'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { MoreVertical } from 'lucide-react'
+import { toast } from 'sonner'
+import { DatePicker } from './ui/date-picker'
 
 interface PatientCardProps {
   patient: Patient
+  onPatientUpdate: (patient: Patient) => void
+  onPatientDelete: (patient: Patient) => void
 }
 
-const PatientCard = ({ patient }: PatientCardProps) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+const PatientCard = ({
+  patient,
+  onPatientUpdate,
+  onPatientDelete,
+}: PatientCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [editedPatient, setEditedPatient] = useState(patient)
-  const dropdownRef = useRef(null)
+  const [editedPatient, setEditedPatient] = useState<Patient>(patient)
   const navigate = useNavigate()
   const { user } = useAuth()
-
-  // Handle click outside dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        event.target instanceof Node &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,11 +49,13 @@ const PatientCard = ({ patient }: PatientCardProps) => {
         `/${user?.id}/patients/${patient.id}`,
         editedPatient,
       )
-      window.location.reload()
-      alert('Paciente editado com sucesso')
+
+      onPatientUpdate(editedPatient)
+
+      toast.success('Paciente editado com sucesso')
     } catch (err) {
       console.log(err)
-      alert('Erro ao editar paciente. Por favor, tente novamente')
+      toast.error('Erro ao editar paciente. Por favor, tente novamente')
     }
     setIsEditModalOpen(false)
   }
@@ -54,11 +63,11 @@ const PatientCard = ({ patient }: PatientCardProps) => {
   const handleDelete = async () => {
     try {
       await api.delete(`/${user?.id}/patients/${patient.id}`)
-      window.location.reload()
-      alert('Paciente deletado com sucesso')
+      onPatientDelete(patient)
+      toast.success('Paciente deletado com sucesso')
     } catch (err) {
       console.log(err)
-      alert('Erro ao deletar paciente. Por favor, tente novamente')
+      toast.error('Erro ao deletar paciente. Por favor, tente novamente')
     }
     setIsDeleteDialogOpen(false)
   }
@@ -75,186 +84,151 @@ const PatientCard = ({ patient }: PatientCardProps) => {
 
   function formatDateForRendering(dateString: string) {
     const date = new Date(dateString)
-
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
-
     return `${day}/${month}/${year}`
   }
 
   function formatCPF(cpf: string) {
     return cpf
-      .replace(/\D/g, '') // Remove non-digit characters
-      .replace(/(\d{3})(\d)/, '$1.$2') // Add a dot after the first 3 digits
-      .replace(/(\d{3})(\d)/, '$1.$2') // Add a dot after the next 3 digits
-      .replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Add a hyphen before the last 2 digits
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+  }
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date instanceof Date) {
+      setEditedPatient((prevState) => ({
+        ...prevState,
+        birthDate: date.toString(),
+      }))
+    }
   }
 
   return (
-    <div className="patient-card">
-      <div className="patient-info">
-        <div className="card-header">
-          <h3>{patient.name}</h3>
-          <div className="patient-actions" ref={dropdownRef}>
-            <div className="dropdown">
-              <button
-                className="dots-button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                aria-label="Menu de ações"
-              >
-                ⋮
-              </button>
-              <div
-                className={`dropdown-content ${isDropdownOpen ? 'active' : ''}`}
-              >
-                <button
-                  onClick={() => {
-                    setIsEditModalOpen(true)
-                    setIsDropdownOpen(false)
-                  }}
-                >
+    <>
+      <Card className="w-fit">
+        <CardContent className="pt-6">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-semibold">{patient.name}</h3>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
                   Editar
-                </button>
-                <button
-                  onClick={() => {
-                    setIsDeleteDialogOpen(true)
-                    setIsDropdownOpen(false)
-                  }}
-                >
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
                   Excluir
-                </button>
-                <button
-                  onClick={() => {
-                    navigate(`/patient/${patient.id}`)
-                    setIsDropdownOpen(false)
-                  }}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/patient/${patient.id}`)}
                 >
                   Ver mais
-                </button>
-              </div>
-            </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </div>
-        <p>
-          <strong>CPF:</strong> {formatCPF(patient.cpf)}
-        </p>
-        <p>
-          <strong>DATA DE NASCIMENTO:</strong>{' '}
-          {formatDateForRendering(patient.birthDate)}
-        </p>
-        <p>
-          <strong>NOME DA MÃE:</strong> {patient.motherName}
-        </p>
-      </div>
 
-      {/* Edit Modal */}
-      <div className={`modal ${isEditModalOpen ? 'active' : ''}`}>
-        <div className="modal-content">
-          <div className="modal-header">
-            <h2>Editar Paciente</h2>
-            <button
-              className="close-button"
-              onClick={() => setIsEditModalOpen(false)}
-              aria-label="Close modal"
-            >
-              ×
-            </button>
+          <div className="space-y-2">
+            <p className="text-sm">
+              <span className="font-semibold">CPF:</span>{' '}
+              {formatCPF(patient.cpf)}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">Data de Nascimento:</span>{' '}
+              {formatDateForRendering(patient.birthDate)}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">Nome da Mãe:</span>{' '}
+              {patient.motherName}
+            </p>
           </div>
-          <div className="modal-body">
-            <form onSubmit={handleEdit}>
-              <div className="field-group">
-                <label htmlFor="name">Nome</label>
-                <input
+        </CardContent>
+      </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Paciente</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input
                   id="name"
-                  type="text"
                   value={editedPatient.name}
                   onChange={(e) => handleInputChange(e, 'name')}
                 />
               </div>
-              <div className="field-group">
-                <label htmlFor="cpf">CPF</label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="cpf">CPF</Label>
+                <Input
                   id="cpf"
-                  type="text"
                   value={formatCPF(editedPatient.cpf)}
                   onChange={(e) => handleInputChange(e, 'cpf')}
                 />
               </div>
-              <div className="field-group">
-                <label htmlFor="birthDate">Data de Nascimento</label>
-                <input
-                  id="birthDate"
-                  type="date"
-                  value={formatDateForInput(editedPatient.birthDate)}
-                  onChange={(e) => handleInputChange(e, 'birthDate')}
+              <div className="space-y-2">
+                <Label htmlFor="birthDate">Data de Nascimento</Label>
+                <DatePicker
+                  value={new Date(editedPatient.birthDate)}
+                  onChange={handleDateChange}
                 />
               </div>
-              <div className="field-group">
-                <label htmlFor="motherName">Nome da Mãe</label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="motherName">Nome da Mãe</Label>
+                <Input
                   id="motherName"
-                  type="text"
                   value={editedPatient.motherName}
                   onChange={(e) => handleInputChange(e, 'motherName')}
                 />
               </div>
-            </form>
-          </div>
-          <div className="modal-footer">
-            <button
-              className="cancel-button"
-              onClick={() => setIsEditModalOpen(false)}
-              type="button"
-            >
-              Cancelar
-            </button>
-            <button
-              className="confirm-button-save"
-              onClick={handleEdit}
-              type="submit"
-            >
-              Salvar
-            </button>
-          </div>
-        </div>
-      </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditModalOpen(false)}
+                type="button"
+              >
+                Cancelar
+              </Button>
+              <Button type="submit">Salvar</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Dialog */}
-      <div className={`modal ${isDeleteDialogOpen ? 'active' : ''}`}>
-        <div className="modal-content">
-          <div className="modal-header">
-            <h2>Excluir paciente</h2>
-            <button
-              className="close-button"
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir paciente</DialogTitle>
+            <DialogDescription>
+              Você tem certeza que deseja excluir o paciente?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              aria-label="Close dialog"
-            >
-              ×
-            </button>
-          </div>
-          <div className="modal-body">
-            <p>Você tem certeza que deseja excluir o paciente?</p>
-          </div>
-          <div className="modal-footer">
-            <button
-              className="cancel-button"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              type="button"
             >
               Cancelar
-            </button>
-            <button
-              className="confirm-button-delete"
-              onClick={handleDelete}
-              type="button"
-            >
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
               Excluir
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

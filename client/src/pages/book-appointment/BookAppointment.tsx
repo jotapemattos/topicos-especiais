@@ -1,5 +1,3 @@
-import './BookAppointment.css'
-import Header from '../../components/Header'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useEffect, useState } from 'react'
@@ -35,10 +33,16 @@ const BookAppointment = () => {
     // eslint-disable-next-line
   }, [])
 
+  const handleConsultationChange = (value: Consultation) => {
+    setConsultation(value)
+  }
+
   return (
-    <div className="historico">
-      <Header />
-      <BookAppointmentForm initialValue={consultation} />
+    <div>
+      <BookAppointmentForm
+        initialValue={consultation}
+        onConsultationChange={handleConsultationChange}
+      />
     </div>
   )
 }

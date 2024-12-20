@@ -2,20 +2,31 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import { Consultation } from '../../services/types'
-import { useParams } from 'react-router-dom'
-import { formatDateForInput } from '../../utils/formatDate'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Textarea } from '@/components/ui/textarea'
+import { DatePicker } from '@/components/ui/date-picker'
+import { toast } from 'sonner'
 
 interface BookAppointmentFormProps {
   initialValue: Consultation | null
+  onConsultationChange: (consultation: Consultation) => void
 }
 
 export function BookAppointmentForm({
   initialValue,
+  onConsultationChange,
 }: BookAppointmentFormProps) {
   const { patientId, consultationId } = useParams() as {
     patientId: string
     consultationId: string
   }
+
+  const navigate = useNavigate()
 
   const [consultation, setConsultation] = useState<Consultation>({
     id: '',
@@ -32,6 +43,8 @@ export function BookAppointmentForm({
     patientId,
   })
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     if (initialValue) {
       setConsultation(initialValue)
@@ -39,6 +52,7 @@ export function BookAppointmentForm({
   }, [initialValue])
 
   const { user } = useAuth()
+
   const handleSave = async () => {
     try {
       if (initialValue) {
@@ -52,7 +66,10 @@ export function BookAppointmentForm({
             patientId,
           },
         )
-        window.location.reload()
+        onConsultationChange(consultation)
+
+        navigate(-1)
+        toast.success('Consulta editada com sucesso!')
         return
       }
 
@@ -77,10 +94,11 @@ export function BookAppointmentForm({
         medication: '',
         patientId,
       })
-      alert('Consulta salva com sucesso!')
+      toast.success('Consulta criada com sucesso!')
+      navigate(-1)
     } catch (err) {
       console.log(err)
-      alert('Erro ao cadastrar consulta. Por favor, tente novamente')
+      setError('Erro ao cadastrar consulta. Por favor, tente novamente')
     }
   }
 
@@ -101,30 +119,41 @@ export function BookAppointmentForm({
     })
   }
 
-  return (
-    <div className="patient-consult">
-      <div className="register-section">
-        <div className="register-container">
-          <h2>CADASTRAR NOVA CONSULTA</h2>
+  const handleDateChange = (date: Date | undefined) => {
+    if (date instanceof Date) {
+      setConsultation((prevState) => ({
+        ...prevState,
+        consultDate: date.toString(),
+      }))
+    }
+  }
 
-          <div className="field-group-row">
-            <div className="field-group">
-              <label htmlFor="register-date">DATA DA CONSULTA:</label>
-              <input
-                type="date"
-                id="register-date"
-                value={formatDateForInput(consultation.consultDate)}
-                onChange={(e) =>
-                  setConsultation({
-                    ...consultation,
-                    consultDate: e.target.value,
-                  })
-                }
+  return (
+    <div className="w-full max-w-4xl mx-auto p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            CADASTRAR NOVA CONSULTA
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="register-date">DATA DA CONSULTA</Label>
+              <DatePicker
+                value={new Date(consultation.consultDate)}
+                onChange={handleDateChange}
               />
             </div>
-            <div className="field-group">
-              <label htmlFor="register-time">HORÁRIO:</label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="register-time">HORÁRIO</Label>
+              <Input
                 type="time"
                 id="register-time"
                 value={consultation.time}
@@ -134,13 +163,14 @@ export function BookAppointmentForm({
                     time: e.target.value,
                   })
                 }
+                className="[&:has([aria-])]:bg-primary"
               />
             </div>
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-pressure">PRESSÃO ARTERIAL:</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-pressure">PRESSÃO ARTERIAL</Label>
+            <Input
               type="text"
               id="register-pressure"
               value={consultation.bloodPressure}
@@ -153,9 +183,9 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-frequency">FREQUÊNCIA CARDÍACA:</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-frequency">FREQUÊNCIA CARDÍACA</Label>
+            <Input
               type="text"
               id="register-frequency"
               value={consultation.frequency}
@@ -168,9 +198,9 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-saturation">SATURAÇÃO (%):</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-saturation">SATURAÇÃO (%)</Label>
+            <Input
               type="number"
               id="register-saturation"
               value={consultation.saturation}
@@ -183,9 +213,9 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-glicemia">GLICEMIA:</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-glicemia">GLICEMIA</Label>
+            <Input
               type="number"
               id="register-glicemia"
               value={consultation.glycemia}
@@ -198,10 +228,9 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-anamnese">ANAMNESE:</label>
-            <input
-              type="text"
+          <div className="space-y-2">
+            <Label htmlFor="register-anamnese">ANAMNESE</Label>
+            <Textarea
               id="register-anamnese"
               value={consultation.anamnesis}
               onChange={(e) =>
@@ -210,12 +239,14 @@ export function BookAppointmentForm({
                   anamnesis: e.target.value,
                 })
               }
+              className="resize-none"
+              rows={10}
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-duration">DURAÇÃO (em minutos):</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-duration">DURAÇÃO (em minutos)</Label>
+            <Input
               type="number"
               id="register-duration"
               value={consultation.duration}
@@ -228,9 +259,9 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-cid">CID:</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-cid">CID</Label>
+            <Input
               type="text"
               id="register-cid"
               value={consultation.icdCode}
@@ -243,9 +274,9 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group">
-            <label htmlFor="register-medication">MEDICAÇÃO:</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="register-medication">MEDICAÇÃO</Label>
+            <Input
               type="text"
               id="register-medication"
               value={consultation.medication}
@@ -258,22 +289,21 @@ export function BookAppointmentForm({
             />
           </div>
 
-          <div className="field-group-row">
-            <div className="field-group">
-              <button className="save-button" onClick={handleSave}>
-                SALVAR
-              </button>
-            </div>
+          <div className="flex justify-end space-x-4">
+            <Button
+              onClick={handleSave}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Salvar
+            </Button>
             {!initialValue && (
-              <div className="field-group">
-                <button className="clear-button" onClick={handleClear}>
-                  LIMPAR
-                </button>
-              </div>
+              <Button onClick={handleClear} variant="outline">
+                Limpar
+              </Button>
             )}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -1,17 +1,21 @@
-import './Dashboard.css'
 import React, { FormEvent, useCallback, useEffect, useState } from 'react'
-import Header from '../../components/Header'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import { GetPatientsResponse, Patient } from '../../services/types'
-import PatientCard from '../../components/PatientCard'
-import { formatDateForInput } from '../../utils/formatDate'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import PatientCard from '@/components/PatientCard'
+import { toast } from 'sonner'
+import { DatePicker } from '@/components/ui/date-picker'
 
-const AreaMedico = () => {
+const DoctorDashboard = () => {
   const { user } = useAuth()
-  const [view, setView] = useState<string>('buscar')
   const [CPF, setCPF] = useState<string>('')
-  const [birthdate, setBirthdate] = useState<Date | string>('')
+  const [birthdate, setBirthdate] = useState<Date>(new Date())
   const [name, setName] = useState<string>('')
   const [motherName, setMotherName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
@@ -32,10 +36,10 @@ const AreaMedico = () => {
     setCPF(formatCPF(e.target.value))
   }
 
-  const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value
-    console.log(inputValue)
-    setBirthdate(inputValue)
+  const handleBirthdateChange = (value: Date | undefined) => {
+    if (value instanceof Date) {
+      setBirthdate(value)
+    }
   }
 
   const handleRegister = async (e: FormEvent) => {
@@ -44,25 +48,21 @@ const AreaMedico = () => {
     setError('')
 
     try {
-      const response = await api.post<Patient>(`/${user?.id}/patients`, {
+      await api.post<Patient>(`/${user?.id}/patients`, {
         name,
         cpf: CPF.replace(/\D/g, ''),
         birthDate: birthdate,
         motherName,
       })
-      console.log(response)
 
       // Clear form
       setName('')
       setCPF('')
-      setBirthdate('')
+      setBirthdate(new Date())
       setMotherName('')
-
-      // Show success message or redirect
-      setView('buscar')
-
-      // Optionally, refresh the patient list
       handleSearch()
+
+      toast.success('Paciente criado com sucesso.')
     } catch (err) {
       setError('Erro ao cadastrar paciente. Por favor, tente novamente.')
       console.error('Registration error:', err)
@@ -79,15 +79,10 @@ const AreaMedico = () => {
       const response = await api.get<GetPatientsResponse>(
         `/${user?.id}/patients`,
       )
-      console.log(response)
-
       const { patients } = response.data
-
-      // Filter patients by name
       const filteredPatients = patients.filter((patient) =>
         patient.name.toLowerCase().includes(searchName.toLowerCase()),
       )
-
       setPatients(filteredPatients)
     } catch (err) {
       setError('Erro ao buscar pacientes. Por favor, tente novamente.')
@@ -97,130 +92,163 @@ const AreaMedico = () => {
     }
   }, [user?.id, searchName])
 
-  // Add useEffect to perform initial search or when searchName changes
   useEffect(() => {
     handleSearch()
   }, [handleSearch])
 
+  const handlePatientUpdate = (updatedPatient: Patient) => {
+    setPatients((prevPatients) =>
+      prevPatients.map((patient: Patient) =>
+        patient.id === updatedPatient.id ? updatedPatient : patient,
+      ),
+    )
+  }
+
+  const handlePatientDelete = (deletedPatient: Patient) => {
+    setPatients((prevPatients) =>
+      prevPatients.filter(
+        (patient: Patient) => patient.id !== deletedPatient.id,
+      ),
+    )
+  }
+
+  // const handleDateChange = (date: Date | undefined) => {
+  //   if (date instanceof Date) {
+  //     setPatients((prevState) => ({
+  //       ...prevState,
+  //       birthDate: date.toString(),
+  //     }))
+  //   }
+  // }
+
   return (
-    <div className="area-medico">
-      <Header />
+    <div className="w-full min-h-screen bg-background">
+      <div className="container mx-auto py-6">
+        <Tabs defaultValue="search" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="search">Buscar</TabsTrigger>
+            <TabsTrigger value="register">Cadastrar</TabsTrigger>
+          </TabsList>
 
-      <div className="tab-container">
-        <button
-          className={`tab-button ${view === 'buscar' ? 'active' : ''}`}
-          onClick={() => setView('buscar')}
-        >
-          BUSCAR
-        </button>
-        <button
-          className={`tab-button ${view === 'cadastrar' ? 'active' : ''}`}
-          onClick={() => setView('cadastrar')}
-        >
-          CADASTRAR
-        </button>
+          <TabsContent value="search">
+            <Card>
+              <CardHeader>
+                <CardTitle>Buscar Pacientes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 mb-6">
+                  <Input
+                    type="text"
+                    value={searchName}
+                    placeholder="Digite o nome do paciente"
+                    onChange={(e) => setSearchName(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button onClick={handleSearch} disabled={loading}>
+                    {loading ? 'Buscando...' : 'Buscar'}
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-8">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {patients.length === 0 ? (
+                    <p className="text-center text-muted-foreground">
+                      Nenhum paciente encontrado.
+                    </p>
+                  ) : (
+                    patients.map((patient) => (
+                      <PatientCard
+                        key={patient.id}
+                        patient={patient}
+                        onPatientUpdate={handlePatientUpdate}
+                        onPatientDelete={handlePatientDelete}
+                      />
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="register">
+            <Card>
+              <CardHeader>
+                <CardTitle>Cadastrar Paciente</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleRegister} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="register-name">Nome Completo</Label>
+                      <Input
+                        id="register-name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="register-cpf">CPF</Label>
+                      <Input
+                        id="register-cpf"
+                        value={CPF}
+                        onChange={handleCPFChange}
+                        placeholder="___.___.___-__"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="register-birthdate">
+                        Data de Nascimento
+                      </Label>
+                      {/* <Input
+                        type="date"
+                        id="register-birthdate"
+                        value={formatDateForInput(birthdate.toString())}
+                        onChange={handleBirthdateChange}
+                        required
+                      /> */}
+                      <DatePicker
+                        value={new Date(birthdate)}
+                        onChange={handleBirthdateChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="register-mother-name">Nome da Mãe</Label>
+                      <Input
+                        id="register-mother-name"
+                        value={motherName}
+                        onChange={(e) => setMotherName(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Cadastrando...' : 'Cadastrar'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {view === 'buscar' && (
-        <div className="search-section">
-          <div className="register-container">
-            <div className="field-group">
-              <input
-                type="text"
-                id="register-name"
-                value={searchName}
-                placeholder="Digite o nome do paciente"
-                onChange={(e) => setSearchName(e.target.value)}
-              />
-            </div>
-            <button
-              id="button-search"
-              className="button"
-              onClick={handleSearch}
-              disabled={loading}
-            >
-              {loading ? 'BUSCANDO...' : 'BUSCAR'}
-            </button>
-          </div>
-
-          <div className="patient-list">
-            {patients.length === 0 ? (
-              <p>Nenhum paciente encontrado.</p>
-            ) : (
-              patients.map((patient) => (
-                <PatientCard patient={patient} key={patient.id} />
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {view === 'cadastrar' && (
-        <div className="register-section">
-          <form onSubmit={handleRegister} className="register-inputs">
-            <div className="field-group-row">
-              <div className="field-group">
-                <label htmlFor="register-name">NOME COMPLETO:</label>
-                <input
-                  type="text"
-                  id="register-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="register-cpf">CPF:</label>
-                <input
-                  type="text"
-                  id="register-cpf"
-                  className="center-placeholder"
-                  value={CPF}
-                  onChange={(e) => handleCPFChange(e)}
-                  placeholder="___.___.___-__"
-                  required
-                />
-              </div>
-            </div>
-            <div className="field-group-row">
-              <div className="field-group">
-                <label htmlFor="register-birthdate">DATA DE NASCIMENTO:</label>
-                <input
-                  type="date"
-                  id="register-birthdate"
-                  className="center-placeholder"
-                  value={formatDateForInput(birthdate.toString())}
-                  onChange={handleBirthdateChange}
-                  required
-                />
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="register-mother-name">NOME DA MÃE:</label>
-                <input
-                  type="text"
-                  id="register-mother-name"
-                  value={motherName}
-                  onChange={(e) => setMotherName(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
-            <button
-              type="submit"
-              className="register-button"
-              disabled={loading}
-            >
-              {loading ? 'CADASTRANDO...' : 'CADASTRAR'}
-            </button>
-          </form>
-        </div>
-      )}
     </div>
   )
 }
 
-export default AreaMedico
+export default DoctorDashboard

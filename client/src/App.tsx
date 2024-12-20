@@ -6,18 +6,32 @@ import Patient from './pages/patient/Patient'
 import BookAppointment from './pages/book-appointment/BookAppointment'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
+import Header from './components/Header' // Import your Header component
+
+// Layout component for routes with header
+const AuthLayout = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <Header />
+    <main>{children}</main>
+  </>
+)
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
+          {/* Public Route */}
           <Route path="/" element={<Login />} />
+
+          {/* Private Routes */}
           <Route
             path="/dashboard"
             element={
               <PrivateRoute>
-                <Dashboard />
+                <AuthLayout>
+                  <Dashboard />
+                </AuthLayout>
               </PrivateRoute>
             }
           />
@@ -25,7 +39,9 @@ function App() {
             path="/patient/:id"
             element={
               <PrivateRoute>
-                <Patient />
+                <AuthLayout>
+                  <Patient />
+                </AuthLayout>
               </PrivateRoute>
             }
           />
@@ -33,7 +49,9 @@ function App() {
             path="/patient/:patientId/book-appointment/:consultationId"
             element={
               <PrivateRoute>
-                <BookAppointment />
+                <AuthLayout>
+                  <BookAppointment />
+                </AuthLayout>
               </PrivateRoute>
             }
           />
