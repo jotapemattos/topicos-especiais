@@ -15,8 +15,8 @@ RUN pnpm install --frozen-lockfile
 # Copy source files
 COPY . .
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port 5173
+EXPOSE 5173
 
 # Start the development server with host flag
 CMD ["pnpm", "dev", "--host", "0.0.0.0"]
